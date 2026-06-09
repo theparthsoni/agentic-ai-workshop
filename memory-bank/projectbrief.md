@@ -24,4 +24,4 @@ descriptions, due dates, and labels.
 - **Default Branch**: main
 - **Archive Strategy**: push-and-pr
 
-> **Note**: The GitHub repo's default branch is currently set to `feature/FEAT-001-foundation-project-setup` (likely accidental). PRs should target `main`. Fix the GitHub default with: `gh repo edit theparthsoni/agentic-ai-workshop --default-branch main`
+> **Note**: GitHub's default branch is `main` (verified 2026-06-09). An earlier note flagged it as `feature/FEAT-001-...`, but that was a stale local `origin/HEAD` cache, not GitHub's actual setting — refreshed via `git remote set-head origin --auto`. PRs target `main`.
