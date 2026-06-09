@@ -23,8 +23,15 @@ export function createHealthRouter(checkDb: DbCheck = defaultDbCheck): Router {
   const router = Router();
 
   router.get('/health', async (_req: Request, res: Response) => {
-    await checkDb();
-    res.status(200).json({ status: 'ok', db: 'connected' });
+    try {
+      await checkDb();
+      res.status(200).json({ status: 'ok', db: 'connected' });
+    } catch (err) {
+      // DB unreachable: report degraded but stay alive (HTTP 200, never crash)
+      // so load balancers / restart policies don't cycle the container.
+      console.error('[health] DB check failed:', err);
+      res.status(200).json({ status: 'degraded', db: 'unreachable' });
+    }
   });
 
   return router;

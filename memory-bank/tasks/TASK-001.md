@@ -412,10 +412,11 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
   - **Verified**: tests 6/6 pass (2 smoke + 4 health) · `tsc --noEmit` clean.
   - Maps to: AC-HAPPY-1 — satisfied (degraded path deferred to Phase 3).
 
-- [ ] **Phase 3 — `/health` degraded path + error handling**
-  - Handle DB-check failure: catch the error, log it (`console.error` is acceptable per MVP scope), and return `200 {status:"degraded",db:"unreachable"}` — never throw/crash.
-  - Add `health.test.ts` degraded-path case with an injected failing DB check.
-  - Maps to: AC-ERROR-1.
+- [x] **Phase 3 — `/health` degraded path + error handling** ✅ (2026-06-09)
+  - Wrapped the `checkDb()` call in try/catch: on failure, log via `console.error` and return `200 {status:"degraded",db:"unreachable"}` — never throws/crashes.
+  - Added 3 degraded-path tests (injected failing DB check): 200 status (not 500), exact degraded body, and `console.error` called. `console.error` is spied/silenced per test.
+  - **Verified**: tests 9/9 pass (2 smoke + 4 happy + 3 degraded) · `tsc --noEmit` clean.
+  - Maps to: AC-ERROR-1 — satisfied.
 
 - [ ] **Phase 4 — Docker Compose + local-run docs**
   - Create `docker-compose.yml` (`postgres:16-alpine` with `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on` postgres healthy, env `DATABASE_URL`/`PORT`).
@@ -439,13 +440,13 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 ## Build Execution State
 
 **Build Status**: RUNNING
-**Current Build**: Phase 2: /health happy path + tests (TASK-001)
+**Current Build**: Phase 3: /health degraded path + error handling (TASK-001)
 **Build Started**: 2026-06-09
-**Phase Number**: 2 of 4
+**Phase Number**: 3 of 4
 **Is Multi-Phase**: YES
 
 ### Current Build Step
-**Step**: Phase 2 COMPLETE — awaiting human review before Phase 3
+**Step**: Phase 3 COMPLETE — awaiting human review before Phase 4
 **Status**: COMPLETE
 **Completed**: 2026-06-09
 
@@ -468,6 +469,6 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 - Coding Agent (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated & verified
 
 ### Resumption Notes
-**Can Resume**: NO (Phase 2 complete; human gate before Phase 3)
-**Resume From**: Phase 3 — `/banyan-build TASK-001` (implement `/health` degraded path + error handling)
-**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction — keep it simple, no overengineering). Phase 3 adds the catch-and-log path: failing `checkDb` → `200 {status:"degraded",db:"unreachable"}`, never throw.
+**Can Resume**: NO (Phase 3 complete; human gate before Phase 4)
+**Resume From**: Phase 4 — `/banyan-build TASK-001` (Docker Compose + backend Dockerfile + README/local-run docs)
+**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction — keep it simple, no overengineering). `/health` now covers both happy (ok/connected) and degraded (degraded/unreachable, non-crashing) paths. Phase 4 is the final phase: `docker-compose.yml`, `backend/Dockerfile`, README.

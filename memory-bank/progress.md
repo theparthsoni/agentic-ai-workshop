@@ -27,3 +27,10 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 - Verification: tests **6/6 pass** (2 smoke + 4 health), `tsc --noEmit` clean.
 - Built directly by orchestrator (treated as Level 1 per user instruction — no sub-agents, no overengineering).
 - Maps to AC-HAPPY-1 (satisfied). Degraded path (AC-ERROR-1) is Phase 3.
+
+## 2026-06-09 — TASK-001 Phase 3/4 (/health degraded path + error handling) — COMPLETE
+- Wrapped the `checkDb()` call in `health.ts` in try/catch: on DB-check failure, log via `console.error` and return `200 {status:"degraded",db:"unreachable"}` — handler never throws or crashes (HTTP 200, not 500, so LB/restart policies don't cycle the container).
+- Added 3 degraded-path Supertest cases (injected failing DB check): 200 status, exact degraded body, and `console.error` invoked. `console.error` spied/silenced per test.
+- Verification: tests **9/9 pass** (2 smoke + 4 happy + 3 degraded), `tsc --noEmit` clean.
+- Built directly by orchestrator (Level 1 per user instruction — no sub-agents, no overengineering).
+- Maps to AC-ERROR-1 (satisfied). Remaining: Phase 4 — Docker Compose + Dockerfile + README (AC-ENTRY-1).
