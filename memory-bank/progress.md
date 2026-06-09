@@ -34,3 +34,11 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 - Verification: tests **9/9 pass** (2 smoke + 4 happy + 3 degraded), `tsc --noEmit` clean.
 - Built directly by orchestrator (Level 1 per user instruction — no sub-agents, no overengineering).
 - Maps to AC-ERROR-1 (satisfied). Remaining: Phase 4 — Docker Compose + Dockerfile + README (AC-ENTRY-1).
+
+## 2026-06-09 — TASK-001 Phase 4/4 (Docker Compose + local-run docs) — COMPLETE → BUILD_COMPLETE
+- Created `docker-compose.yml` (`postgres:16-alpine` + `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on: postgres healthy`, env `DATABASE_URL`/`PORT`, `api` wget healthcheck on `/health`), `backend/Dockerfile` (`node:20-alpine` + `npm ci` + `npx tsx src/server.ts`), `backend/.dockerignore`, and root `README.md` (startup, local run, tests, env vars, structure).
+- **Live Docker smoke (AC-ENTRY-1)**: `docker compose up -d --build` → both services healthy in <30s; `/health` → `{"status":"ok","db":"connected"}`; `docker compose stop postgres` → API stays Up/healthy, `/health` → `{"status":"degraded","db":"unreachable"}`; errors logged.
+- **Bug found & fixed in live test**: stopping postgres originally CRASHED the API (`Unhandled 'error' event on BoundPool`). A `pg.Pool` emits an async `'error'` event on idle clients when the DB drops; without a pool-level listener Node exits — defeating the degraded design. Fixed by attaching `pool.on('error', …)` (log+swallow) in `health.ts`; added a `pg`-mocked regression test (`defaultDbCheck.test.ts`). The injected-checker unit tests could not catch this — only the real container run did. Lesson: infra "stays-alive" guarantees need a real integration smoke, not just mocked unit tests.
+- Verification: tests **10/10 pass**, `tsc --noEmit` clean, `npm run build` → `dist/` clean.
+- Open item: `.env.example` still blocked by the `.env.*` permission deny rule — env vars documented in README/techContext; create manually or narrow the rule.
+- All four ACs satisfied (INTEGRATION-1, HAPPY-1, ERROR-1, ENTRY-1). **TASK-001 BUILD_COMPLETE.** Next: `/banyan-reflect TASK-001`.

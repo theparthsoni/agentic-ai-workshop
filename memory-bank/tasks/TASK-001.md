@@ -1,7 +1,7 @@
 # TASK-001: Foundation & Project Setup
 
 **Complexity**: Level 2 (inherited from FEAT-001)
-**Status**: IN PROGRESS — Build Phase 1 of 4 complete
+**Status**: BUILD_COMPLETE — all 4 phases complete
 **Roadmap**: FEAT-001
 **Branch**: feature/FEAT-001-foundation-project-setup
 **Worktree**: N/A (working in main tree on the feature branch)
@@ -418,12 +418,14 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
   - **Verified**: tests 9/9 pass (2 smoke + 4 happy + 3 degraded) · `tsc --noEmit` clean.
   - Maps to: AC-ERROR-1 — satisfied.
 
-- [ ] **Phase 4 — Docker Compose + local-run docs**
-  - Create `docker-compose.yml` (`postgres:16-alpine` with `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on` postgres healthy, env `DATABASE_URL`/`PORT`).
-  - Create `backend/Dockerfile` (`node:20-alpine`, install deps, run via `tsx` for local dev).
-  - Update root `README.md`: how to run locally (`docker compose up -d`), how to run tests, env var reference.
-  - Documentation Agent records foundational conventions in `systemPatterns.md` (app/server split, co-located `__tests__/`, `.env.example`, `strict: true` baseline) and dev commands in `techContext.md`.
-  - Maps to: AC-ENTRY-1 (single-command startup) + closes the NFR verification loop.
+- [x] **Phase 4 — Docker Compose + local-run docs** ✅ (2026-06-09)
+  - Created `docker-compose.yml` (`postgres:16-alpine` + `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on` postgres healthy, env `DATABASE_URL`/`PORT`, plus an `api` wget healthcheck on `/health`).
+  - Created `backend/Dockerfile` (`node:20-alpine`, `npm ci`, run via `npx tsx src/server.ts`) and `backend/.dockerignore`.
+  - Created root `README.md`: single-command startup, local (non-Docker) run, test commands, full env-var reference, project structure.
+  - **Live smoke test (AC-ENTRY-1 + closes AC-ERROR-1 loop)**: `docker compose up -d --build` → both services `healthy`; `/health` → `{"status":"ok","db":"connected"}`; `docker compose stop postgres` → **API stays Up (healthy)** and returns `{"status":"degraded","db":"unreachable"}`; errors logged server-side.
+  - **Bug found & fixed during live test**: stopping postgres originally **crashed** the API — a `pg.Pool` emits an async `'error'` event on idle clients when the DB drops, and with no pool-level listener Node treats it as unhandled and exits. Fixed in `health.ts` by attaching `pool.on('error', …)` (log + swallow). Added a `pg`-mocked regression test (`defaultDbCheck.test.ts`). This crash was invisible to the injected-checker unit tests — only the real Docker run surfaced it.
+  - **`.env.example` still NOT created** — `Write`/`Edit` on `.env.*` remains blocked by the local permission deny rule. Env vars are fully documented in `README.md` as the interim home; create the file manually or narrow the deny rule.
+  - Maps to: AC-ENTRY-1 (single-command startup) — satisfied.
 
 ### Observability Requirements
 - **Applies**: Minimal (scaffold). The `/health` handler logs DB-check failures via `console.error` per the MVP "keep simple" scope boundary. Full OpenTelemetry/structured logging is **out of scope** for this task and deferred to a later infrastructure task. Note: the project's observability standards (per CLAUDE.md) will apply once real service code lands.
@@ -439,14 +441,14 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ## Build Execution State
 
-**Build Status**: RUNNING
-**Current Build**: Phase 3: /health degraded path + error handling (TASK-001)
+**Build Status**: COMPLETE
+**Current Build**: Phase 4: Docker Compose + local-run docs (TASK-001) — FINAL PHASE
 **Build Started**: 2026-06-09
-**Phase Number**: 3 of 4
+**Phase Number**: 4 of 4
 **Is Multi-Phase**: YES
 
 ### Current Build Step
-**Step**: Phase 3 COMPLETE — awaiting human review before Phase 4
+**Step**: ALL PHASES COMPLETE — ready for /banyan-reflect
 **Status**: COMPLETE
 **Completed**: 2026-06-09
 
@@ -469,6 +471,6 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 - Coding Agent (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated & verified
 
 ### Resumption Notes
-**Can Resume**: NO (Phase 3 complete; human gate before Phase 4)
-**Resume From**: Phase 4 — `/banyan-build TASK-001` (Docker Compose + backend Dockerfile + README/local-run docs)
-**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction — keep it simple, no overengineering). `/health` now covers both happy (ok/connected) and degraded (degraded/unreachable, non-crashing) paths. Phase 4 is the final phase: `docker-compose.yml`, `backend/Dockerfile`, README.
+**Can Resume**: NO (all 4 phases complete — BUILD_COMPLETE)
+**Resume From**: N/A — next step is `/banyan-reflect TASK-001`
+**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction). All ACs verified: AC-INTEGRATION-1 (strict compile), AC-HAPPY-1 (ok/connected + tests), AC-ERROR-1 (degraded/unreachable, non-crashing — **live-verified** in Docker after fixing a pg-pool unhandled-error crash), AC-ENTRY-1 (single-command Docker startup, both services healthy). 10/10 tests pass, build + typecheck clean. Open item: `.env.example` blocked by `.env.*` permission deny rule (documented in README + techContext).

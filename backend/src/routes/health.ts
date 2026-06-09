@@ -11,7 +11,16 @@ let defaultPool: Pool | undefined;
 
 /** Default check: a lightweight `SELECT 1` against the configured Postgres. */
 export function defaultDbCheck(): Promise<unknown> {
-  defaultPool ??= new Pool({ connectionString: process.env.DATABASE_URL });
+  if (!defaultPool) {
+    defaultPool = new Pool({ connectionString: process.env.DATABASE_URL });
+    // pg pools emit an async 'error' event when an *idle* client's connection
+    // drops (e.g. Postgres restarts/stops). Without a listener Node treats it
+    // as an unhandled 'error' and crashes the process — defeating the whole
+    // point of the degraded health check. Swallow + log instead.
+    defaultPool.on('error', (err) => {
+      console.error('[health] idle pg client error:', err);
+    });
+  }
   return defaultPool.query('SELECT 1');
 }
 
