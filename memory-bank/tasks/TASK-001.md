@@ -1,7 +1,8 @@
 # TASK-001: Foundation & Project Setup
 
 **Complexity**: Level 2 (inherited from FEAT-001)
-**Status**: BUILD_COMPLETE — all 4 phases complete
+**Status**: REFLECTION_COMPLETE — all 4 phases complete; reflection done
+**Reflection**: memory-bank/reflection/reflection-TASK-001.md
 **Roadmap**: FEAT-001
 **Branch**: feature/FEAT-001-foundation-project-setup
 **Worktree**: N/A (working in main tree on the feature branch)
@@ -441,14 +442,14 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ## Build Execution State
 
-**Build Status**: COMPLETE
-**Current Build**: Phase 4: Docker Compose + local-run docs (TASK-001) — FINAL PHASE
+**Build Status**: IDLE
+**Current Build**: REFLECT → ARCHIVE (TASK-001)
 **Build Started**: 2026-06-09
 **Phase Number**: 4 of 4
 **Is Multi-Phase**: YES
 
 ### Current Build Step
-**Step**: ALL PHASES COMPLETE — ready for /banyan-reflect
+**Step**: REFLECTION_COMPLETE — ready for /banyan-archive
 **Status**: COMPLETE
 **Completed**: 2026-06-09
 
@@ -471,6 +472,6 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 - Coding Agent (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated & verified
 
 ### Resumption Notes
-**Can Resume**: NO (all 4 phases complete — BUILD_COMPLETE)
-**Resume From**: N/A — next step is `/banyan-reflect TASK-001`
+**Can Resume**: NO (REFLECTION_COMPLETE)
+**Resume From**: N/A — next step is `/banyan-archive TASK-001`
 **Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction). All ACs verified: AC-INTEGRATION-1 (strict compile), AC-HAPPY-1 (ok/connected + tests), AC-ERROR-1 (degraded/unreachable, non-crashing — **live-verified** in Docker after fixing a pg-pool unhandled-error crash), AC-ENTRY-1 (single-command Docker startup, both services healthy). 10/10 tests pass, build + typecheck clean. Open item: `.env.example` blocked by `.env.*` permission deny rule (documented in README + techContext).

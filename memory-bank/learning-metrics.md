@@ -13,13 +13,15 @@
 
 | Task ID | Date | Learnings Extracted | Rules Amended | Rules Created |
 |---------|------|--------------------:|-------------:|-------------:|
-| (none yet) | | | | |
+| TASK-001 | 2026-06-09 | 3 | 0 | 3 |
 
 ## Rule Effectiveness
 
 | File | Topics | Evidence Count | Priority | Last Updated |
 |------|--------|---------------:|:--------:|:------------:|
-| (none yet) | | | | |
+| error-handling.md | error-handling, database, resilience | 1 | low | 2026-06-09 |
+| testing-patterns.md | testing, integration-testing, resilience | 1 | low | 2026-06-09 |
+| build-process.md | process, git, workflow | 1 | low | 2026-06-09 |
 
 ## Consolidation History
 

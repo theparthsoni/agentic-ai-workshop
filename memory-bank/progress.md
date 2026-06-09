@@ -42,3 +42,9 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 - Verification: tests **10/10 pass**, `tsc --noEmit` clean, `npm run build` → `dist/` clean.
 - Open item: `.env.example` still blocked by the `.env.*` permission deny rule — env vars documented in README/techContext; create manually or narrow the rule.
 - All four ACs satisfied (INTEGRATION-1, HAPPY-1, ERROR-1, ENTRY-1). **TASK-001 BUILD_COMPLETE.** Next: `/banyan-reflect TASK-001`.
+
+## 2026-06-09 — TASK-001 Reflection — COMPLETE
+- Reflection document created: `memory-bank/reflection/reflection-TASK-001.md`.
+- Dimensions evaluated: Task Quality (high — all ACs met, one real crash found & fixed) and Ecosystem Effectiveness (phased gate + state tracking worked; friction: ephemeral sub-agent FS, denied Bash chains/curl, `.env.*` deny rule).
+- Continuous learning: 3 patterns extracted → 3 new `_learned/` rule files created (error-handling, testing-patterns, build-process); learning-log + metrics updated.
+- Status: **REFLECTION_COMPLETE.** Next: `/banyan-archive TASK-001`.
