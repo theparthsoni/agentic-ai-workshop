@@ -48,3 +48,14 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 - Dimensions evaluated: Task Quality (high — all ACs met, one real crash found & fixed) and Ecosystem Effectiveness (phased gate + state tracking worked; friction: ephemeral sub-agent FS, denied Bash chains/curl, `.env.*` deny rule).
 - Continuous learning: 3 patterns extracted → 3 new `_learned/` rule files created (error-handling, testing-patterns, build-process); learning-log + metrics updated.
 - Status: **REFLECTION_COMPLETE.** Next: `/banyan-archive TASK-001`.
+
+---
+
+## Task Archive: TASK-001
+
+**Task**: Foundation & Project Setup (FEAT-001)
+**Status**: ✅ ARCHIVED
+**Date**: 2026-06-09
+**Archive**: `memory-bank/archive/archive-TASK-001.md`
+
+---

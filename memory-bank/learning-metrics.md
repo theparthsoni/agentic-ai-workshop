@@ -27,4 +27,4 @@
 
 | Date | Rules Before | Rules After | Merged | Expired | Promoted |
 |------|------------:|------------:|-------:|--------:|---------:|
-| (none yet) | | | | | |
+| 2026-06-09 | 3 | 3 | 0 | 0 | 0 |
