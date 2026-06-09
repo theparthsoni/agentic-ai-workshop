@@ -23,3 +23,14 @@ Chronological record of pattern extraction and consolidation events from task re
 - Expired: 0 bullets (0 files deleted — all freshly created)
 - Promoted: 0 files (all evidence_count 1 < threshold 3)
 - Pruned: 0 excess bullets
+
+---
+
+## 2026-06-09 - TASK-002 Reflection
+
+### Extracted Patterns
+- **testing-patterns** → amended `agent-rules/_learned/testing-patterns.md` (evidence count: 1 → 3) — real-stack-over-mocks reinforced for SQL paths; added in-memory insertion-order ordering rule
+- **api-design** → created `agent-rules/_learned/api-design.md` (evidence count: 1) — PATCH null-vs-omitted via provided-flag, not COALESCE
+
+### systemPatterns.md Updates
+- None new (the data-access / store-injection / schema-bootstrap patterns were recorded in systemPatterns.md during the TASK-002 build)
