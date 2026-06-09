@@ -1,9 +1,13 @@
 import express, { type Express } from 'express';
 import { createHealthRouter, type DbCheck } from './routes/health.js';
+import { createBoardsRouter } from './routes/boards.js';
+import type { BoardStore } from './boards/boardStore.js';
 
 export interface AppDeps {
   /** DB connectivity check used by `/health`. Defaults to a real Postgres ping. */
   checkDb?: DbCheck;
+  /** Persistence for `/boards`. Defaults to a Postgres-backed store. */
+  boardStore?: BoardStore;
 }
 
 /**
@@ -20,6 +24,7 @@ export function createApp(deps: AppDeps = {}): Express {
 
   app.use(express.json());
   app.use(createHealthRouter(deps.checkDb));
+  app.use(createBoardsRouter(deps.boardStore));
 
   return app;
 }

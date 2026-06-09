@@ -13,6 +13,13 @@
 - **`pg.Pool` MUST have an `'error'` listener** — a pool emits an asynchronous `'error'` event on idle clients when the DB connection drops (Postgres restart/stop). With no listener, Node treats it as an unhandled `'error'` and **crashes the process**. Always attach `pool.on('error', …)` (log + swallow). The per-request `try/catch` is NOT sufficient — it only catches the awaited query, not the async pool event. (Discovered in TASK-001 Phase 4 via live Docker test; mocked unit tests did not surface it.)
 - **Infra "stays-alive" guarantees need a real integration smoke** — verify crash-resistance against a real running stack (`docker compose up`, then stop the dependency), not just mocked unit tests.
 
+### Data access & persistence (introduced TASK-002, Board CRUD)
+- **Store interface injected into routers** — each DB-backed resource defines a `*Store` interface (e.g. `BoardStore`) with the CRUD methods, injected into `create*Router(store)`. This is the **same dependency-injection rationale as `checkDb`**: tests run against an `InMemory*Store` (fast, deterministic, no live DB), runtime uses the `Pg*Store`. This is the "concrete need" that justifies a thin data-access layer — it is NOT the repository/use-case/DI layering that `techContext` warns against.
+- **Store contract for "not found"** — read/update return `null` and delete returns `false` when the id is absent; the router maps those to HTTP **404**. Validation failures are **400**; unexpected store errors are caught and returned as **500** (logged via `console.error`, process stays alive) rather than crashing.
+- **Schema bootstrap via `ensure*Schema(pool)`** — `CREATE TABLE IF NOT EXISTS`, idempotent, called once at startup in `server.ts` before `listen()`. No migration tool is introduced yet (simplicity over abstraction); revisit when schema changes need ordering/rollback. A schema-init failure logs and still starts the server (degrade, don't crash).
+- **Postgres specifics** — UUID PKs via built-in `gen_random_uuid()` (PG13+); rows map to camelCase DTOs with `timestamptz → ISO string`. Partial PATCH uses `COALESCE($n, col)` for name and a `CASE WHEN <provided-flag> THEN $n ELSE col END` for description, so an explicit `null` is distinguishable from an omitted field. **Verified against live Postgres** (TASK-002), not just mocked tests.
+- **In-memory ordering** — `InMemoryBoardStore.list()` returns reverse insertion order (Map preserves insertion order) for deterministic "newest first", because millisecond-resolution `createdAt` timestamps collide and cannot be sorted reliably.
+
 ## Conventions
 
 - **TypeScript `strict: true`** is the project-wide baseline (`target: ES2022`). New backend code must compile clean under strict with no `any` escapes.
