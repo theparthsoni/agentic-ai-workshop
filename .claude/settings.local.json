@@ -4,14 +4,12 @@
       "Read",
       "Read(//Users/parthsoni/Documents/Documents - Parth’s MacBook Pro M5/Banyan Agentic Coding Workshop/**)",
       "Read(//Users/parthsoni/Documents/Documents - Parth’s MacBook Pro M5/Banyan Agentic Coding Workshop/banyan-memory-bank/**)",
-
       "Edit(memory-bank/**)",
       "Edit(.claude/settings.json)",
       "Edit(.claude/settings.local.json)",
       "Edit(.gitignore)",
       "Edit(README.md)",
       "Edit(CLAUDE.md)",
-
       "Bash(git status *)",
       "Bash(git status)",
       "Bash(git log *)",
@@ -31,7 +29,6 @@
       "Bash(git -C *)",
       "Bash(git show *)",
       "Bash(git tag *)",
-
       "Bash(ls *)",
       "Bash(ls)",
       "Bash(mkdir -p *)",
@@ -58,8 +55,11 @@
       "Bash(bash -n *)",
       "Bash(cd *)",
       "Bash(chmod +x *)",
-
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm *)",
+      "Bash(docker compose *)",
+      "Bash(docker --version)",
+      "Bash(docker exec agentic-ai-workshop-api-1 *)"
     ],
     "deny": [
       "Bash(rm -rf *)",

@@ -17,9 +17,11 @@ descriptions, due dates, and labels.
 - **Workspace Root**: N/A
 
 ## Git Configuration
-- **Repository**: No
-- **Provider**: None
-- **CLI Available**: none
-- **Remote URL**: none
+- **Repository**: Yes
+- **Provider**: GitHub
+- **CLI Available**: gh
+- **Remote URL**: https://github.com/theparthsoni/agentic-ai-workshop.git
 - **Default Branch**: main
-- **Archive Strategy**: local-merge
+- **Archive Strategy**: push-and-pr
+
+> **Note**: The GitHub repo's default branch is currently set to `feature/FEAT-001-foundation-project-setup` (likely accidental). PRs should target `main`. Fix the GitHub default with: `gh repo edit theparthsoni/agentic-ai-workshop --default-branch main`

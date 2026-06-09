@@ -1,10 +1,13 @@
 # TASK-001: Foundation & Project Setup
 
 **Complexity**: Level 2 (inherited from FEAT-001)
-**Status**: PLANNING_COMPLETE
+**Status**: COMPLETE
+**Reflection**: memory-bank/reflection/reflection-TASK-001.md
+**Archived**: memory-bank/archive/archive-TASK-001.md
+**Completed**: 2026-06-09
 **Roadmap**: FEAT-001
 **Branch**: feature/FEAT-001-foundation-project-setup
-**Worktree**: N/A
+**Worktree**: N/A (working in main tree on the feature branch)
 
 ## Task Description
 
@@ -397,29 +400,35 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ## Implementation Roadmap
 
-- [ ] **Phase 1 — Project scaffold & tooling**
-  - Create `backend/package.json` (deps: `express`, `pg`; devDeps: `typescript`, `vitest`, `supertest`, `@types/*`, `tsx`), `backend/tsconfig.json` (`strict: true`, target ES2022, module NodeNext), `.gitignore` (node_modules, dist, .env), `.env.example` (DATABASE_URL, PORT).
-  - Create `backend/src/app.ts` (Express app factory — registers routes, **no** `listen()`), `backend/src/server.ts` (reads `PORT` from env, calls `app.listen()`).
-  - npm scripts: `dev` (`tsx --watch src/server.ts`), `build` (`tsc`), `test` (`vitest run`), `start` (`node dist/server.js`).
-  - Maps to: AC-INTEGRATION-1 (file layout + strict compile).
+- [x] **Phase 1 — Project scaffold & tooling** ✅ (2026-06-09)
+  - Created `backend/package.json` (deps: `express`, `pg`; devDeps: `typescript`, `vitest`@4, `supertest`, `@types/*`, `tsx`), `backend/tsconfig.json` (`strict: true`, target ES2022, module NodeNext), root `.gitignore`, `backend/vitest.config.ts`.
+  - Created `backend/src/app.ts` (Express app factory — `express.json()`, **no** `listen()`), `backend/src/server.ts` (reads `PORT` from env, calls `app.listen()`), and `backend/src/__tests__/app.smoke.test.ts` (2 Supertest smoke tests).
+  - npm scripts: `dev`, `build`, `start`, `test`, `test:watch`, `typecheck`.
+  - **Verified**: tests 2/2 pass · `tsc --noEmit` clean · `tsc` build → `dist/` · `npm audit` 0 vulnerabilities.
+  - **Known gap**: `.env.example` NOT created — blocked by the `Edit(.env.*)` deny rule. Documented in techContext.md; create manually or narrow the deny rule. (No app routes / `/health` yet — Phase 2.)
+  - Maps to: AC-INTEGRATION-1 (file layout + strict compile) — satisfied.
 
-- [ ] **Phase 2 — `/health` happy path + tests**
-  - Add `backend/src/routes/health.ts`: `GET /health` performs a lightweight DB connectivity check via `pg` (e.g., `SELECT 1`) and returns `200 {status:"ok",db:"connected"}` on success. Keep the DB check injectable (pass a checker fn / pool into the route or app factory) so it's testable without a live DB.
-  - Wire the health route into `app.ts`.
-  - Write `health.test.ts` happy-path cases (Supertest).
-  - Maps to: AC-HAPPY-1.
+- [x] **Phase 2 — `/health` happy path + tests** ✅ (2026-06-09)
+  - Added `backend/src/routes/health.ts`: `createHealthRouter(checkDb)` with injectable `DbCheck`; default `defaultDbCheck()` runs `SELECT 1` via a lazy `pg.Pool`. `GET /health` awaits the check and returns `200 {status:"ok",db:"connected"}`.
+  - Wired the health route into `app.ts` via `createApp({ checkDb })` (injectable dependency).
+  - Wrote `backend/src/routes/__tests__/health.test.ts`: 4 Supertest happy-path cases (200 status, `application/json`, exact body, <100ms) using an injected passing DB check.
+  - **Verified**: tests 6/6 pass (2 smoke + 4 health) · `tsc --noEmit` clean.
+  - Maps to: AC-HAPPY-1 — satisfied (degraded path deferred to Phase 3).
 
-- [ ] **Phase 3 — `/health` degraded path + error handling**
-  - Handle DB-check failure: catch the error, log it (`console.error` is acceptable per MVP scope), and return `200 {status:"degraded",db:"unreachable"}` — never throw/crash.
-  - Add `health.test.ts` degraded-path case with an injected failing DB check.
-  - Maps to: AC-ERROR-1.
+- [x] **Phase 3 — `/health` degraded path + error handling** ✅ (2026-06-09)
+  - Wrapped the `checkDb()` call in try/catch: on failure, log via `console.error` and return `200 {status:"degraded",db:"unreachable"}` — never throws/crashes.
+  - Added 3 degraded-path tests (injected failing DB check): 200 status (not 500), exact degraded body, and `console.error` called. `console.error` is spied/silenced per test.
+  - **Verified**: tests 9/9 pass (2 smoke + 4 happy + 3 degraded) · `tsc --noEmit` clean.
+  - Maps to: AC-ERROR-1 — satisfied.
 
-- [ ] **Phase 4 — Docker Compose + local-run docs**
-  - Create `docker-compose.yml` (`postgres:16-alpine` with `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on` postgres healthy, env `DATABASE_URL`/`PORT`).
-  - Create `backend/Dockerfile` (`node:20-alpine`, install deps, run via `tsx` for local dev).
-  - Update root `README.md`: how to run locally (`docker compose up -d`), how to run tests, env var reference.
-  - Documentation Agent records foundational conventions in `systemPatterns.md` (app/server split, co-located `__tests__/`, `.env.example`, `strict: true` baseline) and dev commands in `techContext.md`.
-  - Maps to: AC-ENTRY-1 (single-command startup) + closes the NFR verification loop.
+- [x] **Phase 4 — Docker Compose + local-run docs** ✅ (2026-06-09)
+  - Created `docker-compose.yml` (`postgres:16-alpine` + `pg_isready` healthcheck; `api` built from `backend/Dockerfile`, `depends_on` postgres healthy, env `DATABASE_URL`/`PORT`, plus an `api` wget healthcheck on `/health`).
+  - Created `backend/Dockerfile` (`node:20-alpine`, `npm ci`, run via `npx tsx src/server.ts`) and `backend/.dockerignore`.
+  - Created root `README.md`: single-command startup, local (non-Docker) run, test commands, full env-var reference, project structure.
+  - **Live smoke test (AC-ENTRY-1 + closes AC-ERROR-1 loop)**: `docker compose up -d --build` → both services `healthy`; `/health` → `{"status":"ok","db":"connected"}`; `docker compose stop postgres` → **API stays Up (healthy)** and returns `{"status":"degraded","db":"unreachable"}`; errors logged server-side.
+  - **Bug found & fixed during live test**: stopping postgres originally **crashed** the API — a `pg.Pool` emits an async `'error'` event on idle clients when the DB drops, and with no pool-level listener Node treats it as unhandled and exits. Fixed in `health.ts` by attaching `pool.on('error', …)` (log + swallow). Added a `pg`-mocked regression test (`defaultDbCheck.test.ts`). This crash was invisible to the injected-checker unit tests — only the real Docker run surfaced it.
+  - **`.env.example` still NOT created** — `Write`/`Edit` on `.env.*` remains blocked by the local permission deny rule. Env vars are fully documented in `README.md` as the interim home; create the file manually or narrow the deny rule.
+  - Maps to: AC-ENTRY-1 (single-command startup) — satisfied.
 
 ### Observability Requirements
 - **Applies**: Minimal (scaffold). The `/health` handler logs DB-check failures via `console.error` per the MVP "keep simple" scope boundary. Full OpenTelemetry/structured logging is **out of scope** for this task and deferred to a later infrastructure task. Note: the project's observability standards (per CLAUDE.md) will apply once real service code lands.
@@ -433,20 +442,38 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ---
 
-## Execution State
+## Build Execution State
 
 **Build Status**: IDLE
-**Current Phase**: BUILD
-**Current Step**: Planning complete — ready for /banyan-build
-**Last Completed**: Step 6 - Planning finalized (2026-06-09)
-**Can Resume**: NO
+**Current Phase**: COMPLETE
+**Build Started**: 2026-06-09
+**Phase Number**: 4 of 4
+**Is Multi-Phase**: YES
 
-### Active Sub-Agents
-(none)
+### Current Build Step
+**Step**: ARCHIVED — task closed
+**Status**: COMPLETE
+**Completed**: 2026-06-09
 
 ### Completed Steps
-- Step 0.1: Task auto-provisioned for FEAT-001
-- Step 3: Spec Writer Agent (Sonnet) — specification drafted
-- Step 3.2: Human review — spec approved as-is; tooling/convention decisions confirmed
-- Step 5: Test Strategy + Implementation Roadmap (4 phases) authored
-- Step 6: Validation gate passed; Status = PLANNING_COMPLETE
+- Planning: COMPLETE — spec approved, 4-phase roadmap authored
+- Step 0.5 Git Setup: COMPLETE — branch feature/FEAT-001-foundation-project-setup; baseline commit; no remote (local-merge); main working tree
+- Step 0.6 Phase Gate: COMPLETE — roadmap populated; no required creative phases
+- Step 1 Read Task Context: COMPLETE — Phase 1 of 4, Level 2
+- Step 2 Load Context: COMPLETE — level2-implementation rules
+- Step 3 Test Writer: COMPLETE — smoke test authored (note: sub-agent output did not persist; recreated by orchestrator)
+- Step 4 Coding Agent: COMPLETE — scaffold authored (note: sub-agent output did not persist; orchestrator wrote files directly to disk)
+- Step 7 Integration Verification: COMPLETE — tests 2/2, typecheck clean, build → dist/, audit 0 vulns (Vitest upgraded v2→v4)
+- Step 8 Code Review: COMPLETE (inline) — approved; no blocking issues; no injection surface yet
+- Step 9 Documentation: COMPLETE — systemPatterns.md + techContext.md populated with foundational conventions
+- Step 10 Memory Bank: COMPLETE — Phase 1 marked done in roadmap, registry, progress
+
+### Sub-Agents
+- Spec Writer (Sonnet): COMPLETE (planning)
+- Test Writer (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated
+- Coding Agent (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated & verified
+
+### Resumption Notes
+**Can Resume**: NO (COMPLETE — archived)
+**Resume From**: N/A
+**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction). All ACs verified: AC-INTEGRATION-1 (strict compile), AC-HAPPY-1 (ok/connected + tests), AC-ERROR-1 (degraded/unreachable, non-crashing — **live-verified** in Docker after fixing a pg-pool unhandled-error crash), AC-ENTRY-1 (single-command Docker startup, both services healthy). 10/10 tests pass, build + typecheck clean. Open item: `.env.example` blocked by `.env.*` permission deny rule (documented in README + techContext).
