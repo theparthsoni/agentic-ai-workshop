@@ -67,3 +67,12 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 - Note: built as Level 1 by user override (assessed Level 2). settings.local.json deny→allow corruption via permission prompt was caught and reverted (not committed).
 
 ---
+
+## Task Archive: TASK-002
+
+**Task**: Board model + full CRUD endpoints + tests (FEAT-002)
+**Status**: ✅ ARCHIVED
+**Date**: 2026-06-09
+**Archive**: `memory-bank/archive/archive-TASK-002.md`
+
+---

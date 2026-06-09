@@ -34,3 +34,13 @@ Chronological record of pattern extraction and consolidation events from task re
 
 ### systemPatterns.md Updates
 - None new (the data-access / store-injection / schema-bootstrap patterns were recorded in systemPatterns.md during the TASK-002 build)
+
+---
+
+## 2026-06-09 - Consolidation (during TASK-002 archive)
+
+- Files before: 4, Files after: 4
+- Merged: 0 files (error-handling/api-design share only "database" — 33% overlap < 50%; others distinct)
+- Expired: 0 bullets (all evidence fresh, 2026-06-09)
+- Promoted: 1 file — testing-patterns.md low → medium (evidence_count 3 ≥ threshold 3)
+- Pruned: 0 excess bullets

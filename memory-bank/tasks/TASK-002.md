@@ -1,9 +1,11 @@
 # TASK-002: Board model with full CRUD endpoints + comprehensive tests
 
 **Complexity**: Level 1 (user override — assessed Level 2; see note below)
-**Status**: REFLECTION_COMPLETE
+**Status**: COMPLETE
 **Reflection**: memory-bank/reflection/reflection-TASK-002.md
-**Roadmap**: N/A
+**Archived**: memory-bank/archive/archive-TASK-002.md
+**Completed**: 2026-06-09
+**Roadmap Link**: FEAT-002 (Board CRUD API) — linked retroactively 2026-06-09
 **Branch**: feature/board-crud
 **Worktree**: N/A (Level 1 uses direct branch, not worktree)
 
@@ -50,7 +52,7 @@ Follows existing backend conventions (TASK-001):
 ## Execution State
 
 **Build Status**: IDLE
-**Current Phase**: REFLECT → ARCHIVE
+**Current Phase**: COMPLETE
 **Can Resume**: NO
 
 ### Active Sub-Agents
