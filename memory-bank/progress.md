@@ -59,3 +59,20 @@ Implementation status and phase completion tracking. Updated by `/banyan-archive
 **Archive**: `memory-bank/archive/archive-TASK-001.md`
 
 ---
+
+## 2026-06-09 — TASK-002 (Board CRUD) — REFLECTION_COMPLETE
+- First DB-backed resource: `Board` model + 5 CRUD endpoints (`/boards`), injectable `BoardStore` (in-memory + Postgres), `ensureBoardsSchema()` bootstrap.
+- Verification: **41/41 tests pass**, `tsc --noEmit` clean, live Postgres CRUD smoke via docker compose (incl. partial-PATCH null-vs-omitted semantics).
+- Reflection: `memory-bank/reflection/reflection-TASK-002.md`. Learnings extracted: testing-patterns (amended, ev 3), api-design (created, ev 1).
+- Note: built as Level 1 by user override (assessed Level 2). settings.local.json deny→allow corruption via permission prompt was caught and reverted (not committed).
+
+---
+
+## Task Archive: TASK-002
+
+**Task**: Board model + full CRUD endpoints + tests (FEAT-002)
+**Status**: ✅ ARCHIVED
+**Date**: 2026-06-09
+**Archive**: `memory-bank/archive/archive-TASK-002.md`
+
+---

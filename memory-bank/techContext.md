@@ -34,12 +34,20 @@ agent-ai-workshop/
 │   ├── tsconfig.json            # strict, ES2022, NodeNext; build excludes tests
 │   ├── vitest.config.ts         # Vitest (node env)
 │   └── src/
-│       ├── app.ts               # createApp({ checkDb }) factory (no listen())
-│       ├── server.ts            # entrypoint: reads PORT, app.listen()
+│       ├── app.ts               # createApp({ checkDb, boardStore }) factory (no listen())
+│       ├── server.ts            # entrypoint: ensureBoardsSchema() then app.listen()
+│       ├── boards/              # Board domain (first DB-backed resource)
+│       │   ├── board.ts         # Board + Create/UpdateBoardInput types
+│       │   ├── boardStore.ts    # BoardStore interface + InMemoryBoardStore (tests/fallback)
+│       │   ├── pgBoardStore.ts  # PgBoardStore + ensureBoardsSchema() + lazy default store
+│       │   └── __tests__/
+│       │       └── inMemoryBoardStore.test.ts  # store unit tests
 │       ├── routes/
 │       │   ├── health.ts        # GET /health (injectable DB check; pool 'error' guard)
+│       │   ├── boards.ts        # /boards CRUD router (injectable BoardStore; validation)
 │       │   └── __tests__/
 │       │       ├── health.test.ts          # happy + degraded paths
+│       │       ├── boards.test.ts          # full CRUD via Supertest + in-memory store
 │       │       └── defaultDbCheck.test.ts  # pg-mocked pool-error regression
 │       └── __tests__/
 │           └── app.smoke.test.ts  # Supertest smoke tests
