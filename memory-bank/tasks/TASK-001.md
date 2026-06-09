@@ -1,10 +1,10 @@
 # TASK-001: Foundation & Project Setup
 
 **Complexity**: Level 2 (inherited from FEAT-001)
-**Status**: PLANNING_COMPLETE
+**Status**: IN PROGRESS — Build Phase 1 of 4 complete
 **Roadmap**: FEAT-001
 **Branch**: feature/FEAT-001-foundation-project-setup
-**Worktree**: N/A
+**Worktree**: N/A (working in main tree on the feature branch)
 
 ## Task Description
 
@@ -397,17 +397,20 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ## Implementation Roadmap
 
-- [ ] **Phase 1 — Project scaffold & tooling**
-  - Create `backend/package.json` (deps: `express`, `pg`; devDeps: `typescript`, `vitest`, `supertest`, `@types/*`, `tsx`), `backend/tsconfig.json` (`strict: true`, target ES2022, module NodeNext), `.gitignore` (node_modules, dist, .env), `.env.example` (DATABASE_URL, PORT).
-  - Create `backend/src/app.ts` (Express app factory — registers routes, **no** `listen()`), `backend/src/server.ts` (reads `PORT` from env, calls `app.listen()`).
-  - npm scripts: `dev` (`tsx --watch src/server.ts`), `build` (`tsc`), `test` (`vitest run`), `start` (`node dist/server.js`).
-  - Maps to: AC-INTEGRATION-1 (file layout + strict compile).
+- [x] **Phase 1 — Project scaffold & tooling** ✅ (2026-06-09)
+  - Created `backend/package.json` (deps: `express`, `pg`; devDeps: `typescript`, `vitest`@4, `supertest`, `@types/*`, `tsx`), `backend/tsconfig.json` (`strict: true`, target ES2022, module NodeNext), root `.gitignore`, `backend/vitest.config.ts`.
+  - Created `backend/src/app.ts` (Express app factory — `express.json()`, **no** `listen()`), `backend/src/server.ts` (reads `PORT` from env, calls `app.listen()`), and `backend/src/__tests__/app.smoke.test.ts` (2 Supertest smoke tests).
+  - npm scripts: `dev`, `build`, `start`, `test`, `test:watch`, `typecheck`.
+  - **Verified**: tests 2/2 pass · `tsc --noEmit` clean · `tsc` build → `dist/` · `npm audit` 0 vulnerabilities.
+  - **Known gap**: `.env.example` NOT created — blocked by the `Edit(.env.*)` deny rule. Documented in techContext.md; create manually or narrow the deny rule. (No app routes / `/health` yet — Phase 2.)
+  - Maps to: AC-INTEGRATION-1 (file layout + strict compile) — satisfied.
 
-- [ ] **Phase 2 — `/health` happy path + tests**
-  - Add `backend/src/routes/health.ts`: `GET /health` performs a lightweight DB connectivity check via `pg` (e.g., `SELECT 1`) and returns `200 {status:"ok",db:"connected"}` on success. Keep the DB check injectable (pass a checker fn / pool into the route or app factory) so it's testable without a live DB.
-  - Wire the health route into `app.ts`.
-  - Write `health.test.ts` happy-path cases (Supertest).
-  - Maps to: AC-HAPPY-1.
+- [x] **Phase 2 — `/health` happy path + tests** ✅ (2026-06-09)
+  - Added `backend/src/routes/health.ts`: `createHealthRouter(checkDb)` with injectable `DbCheck`; default `defaultDbCheck()` runs `SELECT 1` via a lazy `pg.Pool`. `GET /health` awaits the check and returns `200 {status:"ok",db:"connected"}`.
+  - Wired the health route into `app.ts` via `createApp({ checkDb })` (injectable dependency).
+  - Wrote `backend/src/routes/__tests__/health.test.ts`: 4 Supertest happy-path cases (200 status, `application/json`, exact body, <100ms) using an injected passing DB check.
+  - **Verified**: tests 6/6 pass (2 smoke + 4 health) · `tsc --noEmit` clean.
+  - Maps to: AC-HAPPY-1 — satisfied (degraded path deferred to Phase 3).
 
 - [ ] **Phase 3 — `/health` degraded path + error handling**
   - Handle DB-check failure: catch the error, log it (`console.error` is acceptable per MVP scope), and return `200 {status:"degraded",db:"unreachable"}` — never throw/crash.
@@ -433,20 +436,38 @@ Spec **approved as-is** by the human. No creative phase. Proceed to build after 
 
 ---
 
-## Execution State
+## Build Execution State
 
-**Build Status**: IDLE
-**Current Phase**: BUILD
-**Current Step**: Planning complete — ready for /banyan-build
-**Last Completed**: Step 6 - Planning finalized (2026-06-09)
-**Can Resume**: NO
+**Build Status**: RUNNING
+**Current Build**: Phase 2: /health happy path + tests (TASK-001)
+**Build Started**: 2026-06-09
+**Phase Number**: 2 of 4
+**Is Multi-Phase**: YES
 
-### Active Sub-Agents
-(none)
+### Current Build Step
+**Step**: Phase 2 COMPLETE — awaiting human review before Phase 3
+**Status**: COMPLETE
+**Completed**: 2026-06-09
 
 ### Completed Steps
-- Step 0.1: Task auto-provisioned for FEAT-001
-- Step 3: Spec Writer Agent (Sonnet) — specification drafted
-- Step 3.2: Human review — spec approved as-is; tooling/convention decisions confirmed
-- Step 5: Test Strategy + Implementation Roadmap (4 phases) authored
-- Step 6: Validation gate passed; Status = PLANNING_COMPLETE
+- Planning: COMPLETE — spec approved, 4-phase roadmap authored
+- Step 0.5 Git Setup: COMPLETE — branch feature/FEAT-001-foundation-project-setup; baseline commit; no remote (local-merge); main working tree
+- Step 0.6 Phase Gate: COMPLETE — roadmap populated; no required creative phases
+- Step 1 Read Task Context: COMPLETE — Phase 1 of 4, Level 2
+- Step 2 Load Context: COMPLETE — level2-implementation rules
+- Step 3 Test Writer: COMPLETE — smoke test authored (note: sub-agent output did not persist; recreated by orchestrator)
+- Step 4 Coding Agent: COMPLETE — scaffold authored (note: sub-agent output did not persist; orchestrator wrote files directly to disk)
+- Step 7 Integration Verification: COMPLETE — tests 2/2, typecheck clean, build → dist/, audit 0 vulns (Vitest upgraded v2→v4)
+- Step 8 Code Review: COMPLETE (inline) — approved; no blocking issues; no injection surface yet
+- Step 9 Documentation: COMPLETE — systemPatterns.md + techContext.md populated with foundational conventions
+- Step 10 Memory Bank: COMPLETE — Phase 1 marked done in roadmap, registry, progress
+
+### Sub-Agents
+- Spec Writer (Sonnet): COMPLETE (planning)
+- Test Writer (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated
+- Coding Agent (Sonnet): reported COMPLETE but files did not persist → orchestrator recreated & verified
+
+### Resumption Notes
+**Can Resume**: NO (Phase 2 complete; human gate before Phase 3)
+**Resume From**: Phase 3 — `/banyan-build TASK-001` (implement `/health` degraded path + error handling)
+**Notes**: Built directly by the orchestrator (Level 1, no sub-agents per user instruction — keep it simple, no overengineering). Phase 3 adds the catch-and-log path: failing `checkDb` → `200 {status:"degraded",db:"unreachable"}`, never throw.
